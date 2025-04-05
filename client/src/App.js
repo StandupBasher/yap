@@ -1,37 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3001", {
-  autoConnect: false, // Don't connect until username is set
-});
+const socket = io("http://localhost:3001", { autoConnect: false });
 
 function App() {
-  const [username, setUsername] = useState("");
-  const [tempName, setTempName] = useState(""); // for the input form
+  const [username, setUsername] = useState(() => localStorage.getItem("yap-username") || "");
+  const [tempName, setTempName] = useState("");
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
-  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    if (!isConnected) return;
+    if (!username) return;
 
-    socket.connect(); // connect once username is ready
+    socket.connect();
     socket.emit("set_username", username);
+
+    socket.on("chat_history", (history) => {
+      setChat(history);
+    });
 
     socket.on("receive_message", (data) => {
       setChat((prev) => [...prev, data]);
     });
 
     return () => {
+      socket.off("chat_history");
       socket.off("receive_message");
     };
-  }, [isConnected]);
+  }, [username]);
 
   const handleUsernameSubmit = (e) => {
     e.preventDefault();
     if (!tempName.trim()) return;
-    setUsername(tempName.trim());
-    setIsConnected(true);
+
+    const cleanedName = tempName.trim();
+    localStorage.setItem("yap-username", cleanedName);
+    setUsername(cleanedName);
   };
 
   const sendMessage = () => {
@@ -47,7 +51,7 @@ function App() {
     }
   };
 
-  if (!isConnected) {
+  if (!username) {
     return (
       <div style={{ padding: "20px" }}>
         <h2>Welcome to Yap</h2>
@@ -71,6 +75,11 @@ function App() {
         {chat.map((msg, idx) => (
           <div key={idx}>
             <strong>{msg.sender}:</strong> {msg.message}
+            {msg.createdAt && (
+              <span style={{ marginLeft: "10px", fontSize: "0.8em", color: "gray" }}>
+                {new Date(msg.createdAt).toLocaleTimeString()}
+              </span>
+            )}
           </div>
         ))}
       </div>

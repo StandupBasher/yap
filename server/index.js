@@ -24,7 +24,7 @@ async function connectDB() {
   try {
     await client.connect();
     console.log("MongoDB connected!");
-    db = client.db("yap"); // Replace with your actual DB name if different
+    db = client.db("yap"); // Change if using a different DB name
     messagesCollection = db.collection("messages");
   } catch (error) {
     console.log("MongoDB connection error:", error);
@@ -46,8 +46,23 @@ const users = {}; // socket.id -> username
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
-  socket.on("set_username", (username) => {
+  socket.on("set_username", async (username) => {
     users[socket.id] = username;
+
+    // Send recent chat history
+    if (messagesCollection) {
+      try {
+        const history = await messagesCollection
+          .find({})
+          .sort({ createdAt: -1 })
+          .limit(50)
+          .toArray();
+
+        socket.emit("chat_history", history.reverse());
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+      }
+    }
 
     io.emit("receive_message", {
       message: `${username} has joined the chat.`,
