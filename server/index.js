@@ -24,7 +24,7 @@ async function connectDB() {
   try {
     await client.connect();
     console.log("MongoDB connected!");
-    db = client.db("yap"); // Change if using a different DB name
+    db = client.db("yap"); // Update if using a different DB name
     messagesCollection = db.collection("messages");
   } catch (error) {
     console.log("MongoDB connection error:", error);
@@ -41,13 +41,14 @@ const io = new Server(server, {
   },
 });
 
-const users = {}; // socket.id -> username
+const users = {}; // socket.id => username
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
   socket.on("set_username", async (username) => {
     users[socket.id] = username;
+    console.log(`${socket.id} set username: ${username}`);
 
     // Send recent chat history
     if (messagesCollection) {
@@ -66,6 +67,18 @@ io.on("connection", (socket) => {
 
     io.emit("receive_message", {
       message: `${username} has joined the chat.`,
+      sender: "system",
+    });
+  });
+
+  socket.on("change_username", (newName) => {
+    const oldName = users[socket.id] || "Unknown";
+    users[socket.id] = newName;
+
+    console.log(`${oldName} changed their name to ${newName}`);
+
+    io.emit("receive_message", {
+      message: `${oldName} is now known as ${newName}.`,
       sender: "system",
     });
   });
@@ -90,7 +103,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
     const username = users[socket.id] || "A user";
+
     io.emit("receive_message", {
       message: `${username} has left the chat.`,
       sender: "system",
