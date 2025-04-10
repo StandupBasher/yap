@@ -103,44 +103,64 @@ function App() {
 
   return (
     <div style={styles.wrapper}>
-      <h2 style={styles.title}>Yap Chat</h2>
+      <header style={styles.header}>
+        <h2 style={styles.title}># general</h2>
+        <UsernameBar
+          username={username}
+          editingName={editingName}
+          newName={newName}
+          setNewName={setNewName}
+          onChange={handleNameChange}
+          onSave={saveNewUsername}
+        />
+      </header>
 
-      <UsernameBar
-        username={username}
-        editingName={editingName}
-        newName={newName}
-        setNewName={setNewName}
-        onChange={handleNameChange}
-        onSave={saveNewUsername}
-      />
+      <main style={styles.chatContainer}>
+        <ChatBox chat={chat} username={username} />
+      </main>
 
-      <ChatBox chat={chat} username={username} />
-
-      <MessageInput
-        message={message}
-        setMessage={setMessage}
-        onSend={sendMessage}
-        onKeypress={handleKeypress}
-      />
+      <footer style={styles.inputContainer}>
+        <MessageInput
+          message={message}
+          setMessage={setMessage}
+          onSend={sendMessage}
+          onKeypress={handleKeypress}
+        />
+      </footer>
     </div>
   );
 }
 
 const styles = {
   wrapper: {
-    height: "100vh",
     display: "flex",
     flexDirection: "column",
+    height: "100vh",
     backgroundColor: theme.colors.background,
     color: theme.colors.text,
     fontFamily: theme.font,
-    padding: "20px",
     boxSizing: "border-box",
-    overflow: "hidden", // prevent spillover
-  },  
+    overflow: "hidden",
+  },
+  header: {
+    padding: "16px 20px",
+    borderBottom: `1px solid ${theme.colors.border}`,
+    flexShrink: 0,
+  },
   title: {
-    marginBottom: "10px",
-    color: theme.colors.text,
+    margin: 0,
+    fontSize: "1.2rem",
+  },
+  chatContainer: {
+    flex: 1,
+    minHeight: 0,
+    overflow: "hidden",
+    padding: "0 20px",
+  },
+  inputContainer: {
+    padding: "16px 20px",
+    borderTop: `1px solid ${theme.colors.border}`,
+    flexShrink: 0,
   },
   loginForm: {
     display: "flex",

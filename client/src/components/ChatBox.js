@@ -1,44 +1,92 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MessageBubble from "./MessageBubble";
 import theme from "../styles/theme";
 
 const ChatBox = ({ chat, username }) => {
-  const boxRef = useRef(null);
-  const endRef = useRef(null);
+  const scrollRef = useRef(null);
+  const [showJump, setShowJump] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  const scrollToBottom = () => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    setShowJump(false);
+  };
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
+    setShowJump(!isNearBottom);
+  };
 
   useEffect(() => {
-    if (!boxRef.current || !endRef.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
 
-    const box = boxRef.current;
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 100;
 
-    const isNearBottom =
-      box.scrollHeight - box.scrollTop - box.clientHeight < 100;
-
-    if (isNearBottom) {
-      endRef.current.scrollIntoView({ behavior: "smooth" });
+    if (!hasInitialized) {
+      el.scrollTop = el.scrollHeight;
+      setHasInitialized(true);
+      return;
     }
-  }, [chat]);
+
+    if (isNearBottom) el.scrollTop = el.scrollHeight;
+    setShowJump(!isNearBottom);
+  }, [chat, hasInitialized]);
 
   return (
-    <div
-      ref={boxRef}
-      style={{
-        flex: 1,
-        backgroundColor: theme.colors.panel,
-        border: `1px solid ${theme.colors.border}`,
-        padding: "10px",
-        borderRadius: "5px",
-        overflowY: "auto",
-        marginBottom: "10px",
-        minHeight: 0,
-      }}
-    >
-      {chat.map((msg, idx) => (
-        <MessageBubble key={idx} msg={msg} isOwn={msg.sender === username} />
-      ))}
-      <div ref={endRef} />
+    <div style={outerContainer}>
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        style={scrollContainer}
+      >
+        {chat.map((msg, idx) => (
+          <MessageBubble key={idx} msg={msg} isOwn={msg.sender === username} />
+        ))}
+        <div style={{ height: 32 }} />
+      </div>
+
+      {showJump && (
+        <button onClick={scrollToBottom} style={jumpButton}>
+          Jump to Present
+        </button>
+      )}
     </div>
   );
+};
+
+const outerContainer = {
+  flex: 1,
+  minHeight: 0,
+  position: "relative",
+  display: "flex",
+  flexDirection: "column",
+};
+
+const scrollContainer = {
+  flex: 1,
+  minHeight: 0,
+  overflowY: "auto",
+  padding: "10px",
+  backgroundColor: theme.colors.panel,
+  border: `1px solid ${theme.colors.border}`,
+  borderRadius: "5px",
+};
+
+const jumpButton = {
+  position: "absolute",
+  bottom: "10px",
+  right: "10px",
+  padding: "6px 12px",
+  borderRadius: "5px",
+  backgroundColor: theme.colors.button,
+  color: "#fff",
+  border: "none",
+  cursor: "pointer",
+  zIndex: 1,
 };
 
 export default ChatBox;
