@@ -1,3 +1,5 @@
+// client/src/components/ChatBox.js
+
 import React, { useEffect, useRef, useState } from "react";
 import MessageBubble from "./MessageBubble";
 import theme from "../styles/theme";

@@ -3,24 +3,37 @@ import theme from "../styles/theme";
 
 const MessageBubble = ({ msg, isOwn }) => {
   const isSystem = msg.sender === "system";
-  const style = isSystem
-    ? {
-        color: theme.colors.system,
-        fontStyle: "italic",
-        margin: "6px 0",
-      }
-    : {
-        backgroundColor: isOwn ? "#2a2a2a" : "#242424",
-        padding: "8px",
-        margin: "4px 0",
-        borderRadius: "5px",
-      };
 
   return (
-    <div style={style}>
-      <strong>{msg.sender}:</strong> {msg.message}
-      {msg.createdAt && !isSystem && (
-        <div style={{ fontSize: "0.7em", color: theme.colors.system, marginTop: "4px" }}>
+    <div
+      style={{
+        textAlign: isSystem ? "center" : isOwn ? "right" : "left",
+        marginBottom: "8px",
+      }}
+    >
+      {!isSystem && (
+        <div style={{ fontSize: "0.85em", color: "#999" }}>{msg.sender}</div>
+      )}
+      <div
+        style={{
+          display: "inline-block",
+          padding: "8px 12px",
+          borderRadius: "12px",
+          backgroundColor: isSystem
+            ? "transparent"
+            : isOwn
+            ? theme.colors.accent
+            : theme.colors.panel,
+          color: isSystem ? "#888" : theme.colors.text,
+          whiteSpace: "pre-wrap",
+          maxWidth: "80%",
+          wordBreak: "break-word",
+        }}
+      >
+        {msg.message}
+      </div>
+      {msg.createdAt && (
+        <div style={{ fontSize: "0.75em", color: "#666", marginTop: "2px" }}>
           {new Date(msg.createdAt).toLocaleTimeString()}
         </div>
       )}

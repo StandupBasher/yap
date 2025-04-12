@@ -1,51 +1,28 @@
-import React from "react";
-import theme from "../styles/theme";
+// client/src/components/UsernameBar.js
 
-const UsernameBar = ({
-  username,
-  editingName,
-  newName,
-  setNewName,
-  onChange,
-  onSave,
-}) => {
-  return !editingName ? (
-    <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-      <span>
-        Logged in as <strong>{username}</strong>
-      </span>
-      <button onClick={onChange} style={buttonStyle}>Change Username</button>
-    </div>
-  ) : (
-    <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-      <input
-        type="text"
-        value={newName}
-        onChange={(e) => setNewName(e.target.value)}
-        placeholder="New username"
-        style={inputStyle}
-      />
-      <button onClick={onSave} style={buttonStyle}>Save</button>
+import React from "react";
+
+const UsernameBar = ({ username, editingName, newName, setNewName, onChange, onSave }) => {
+  return (
+    <div>
+      {!editingName ? (
+        <div>
+          Logged in as <strong>{username}</strong>{" "}
+          <button onClick={onChange}>Change Username</button>
+        </div>
+      ) : (
+        <div>
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="New username"
+          />
+          <button onClick={onSave}>Save</button>
+        </div>
+      )}
     </div>
   );
-};
-
-const inputStyle = {
-  flex: 1,
-  padding: "8px",
-  borderRadius: "5px",
-  border: "1px solid #555",
-  backgroundColor: theme.colors.input,
-  color: theme.colors.text,
-};
-
-const buttonStyle = {
-  padding: "8px 12px",
-  backgroundColor: theme.colors.button,
-  color: "#fff",
-  border: "none",
-  borderRadius: "5px",
-  cursor: "pointer",
 };
 
 export default UsernameBar;
