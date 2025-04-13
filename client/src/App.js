@@ -5,7 +5,7 @@ import Sidebar from "./components/Sidebar";
 import ChannelList from "./components/ChannelList";
 import ChatPanel from "./components/ChatPanel";
 import theme from "./styles/theme";
-
+ 
 const App = () => {
   return (
     <div style={styles.appContainer}>
